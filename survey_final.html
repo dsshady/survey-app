@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>领导评分问卷</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .leader-score {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .hidden {
+            display: none;
+        }
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f4fc;
+            border-radius: 5px;
+        }
+        .distribution-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .results-table th, .results-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        .results-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .results-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>领导评分问卷</h1>
+        
+        <!-- 问卷填写表单 -->
+        <form id="survey-form">
+            <div class="form-group">
+                <label for="responder-id">您的工号：</label>
+                <input type="text" id="responder-id" required>
+            </div>
+            
+            <div class="form-group">
+                <label>请为以下6位领导评分（30-98分）：</label>
+                <div class="score-grid">
+                    <div class="leader-score">
+                        <label for="score1">领导A：</label>
+                        <input type="number" id="score1" min="30" max="98" required>
+                    </div>
+                    <div class="leader-score">
+                        <label for="score2">领导B：</label>
+                        <input type="number" id="score2" min="30" max="98" required>
+                    </div>
+                    <div class="leader-score">
+                        <label for="score3">领导C：</label>
+                        <input type="number" id="score3" min="30" max="98" required>
+                    </div>
+                    <div class="leader-score">
+                        <label for="score4">领导D：</label>
+                        <input type="number" id="score4" min="30" max="98" required>
+                    </div>
+                    <div class="leader-score">
+                        <label for="score5">领导E：</label>
+                        <input type="number" id="score5" min="30" max="98" required>
+                    </div>
+                    <div class="leader-score">
+                        <label for="score6">领导F：</label>
+                        <input type="number" id="score6" min="30" max="98" required>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" onclick="submitScores()">提交评分</button>
+        </form>
+        
+        <!-- 消息提示 -->
+        <div id="message" class="message hidden"></div>
+        
+        <!-- 结果查看区域（仅发起人可见） -->
+        <div id="result-section" class="result-section hidden">
+            <h2>问卷结果统计</h2>
+            <div class="distribution-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="excellent-count">0</div>
+                    <div class="stat-label">优秀 (90-98分)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="good-below-count">0</div>
+                    <div class="stat-label">良好及以下 (30-89分)</div>
+                </div>
+            </div>
+            
+            <h3>详细投票记录</h3>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>工号</th>
+                        <th>领导A</th>
+                        <th>领导B</th>
+                        <th>领导C</th>
+                        <th>领导D</th>
+                        <th>领导E</th>
+                        <th>领导F</th>
+                        <th>提交时间</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                    <!-- 投票记录将在这里动态生成 -->
+                </tbody>
+            </table>
+            
+            <button onclick="viewResults()">刷新结果</button>
+        </div>
+    </div>
+
+    <script>
+        // 显示消息
+        function showMessage(text, isSuccess) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + (isSuccess ? 'success' : 'error');
+            messageEl.classList.remove('hidden');
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                messageEl.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // 提交评分
+        function submitScores() {
+            // 获取输入值
+            const responderId = document.getElementById('responder-id').value;
+            const scores = [
+                parseInt(document.getElementById('score1').value),
+                parseInt(document.getElementById('score2').value),
+                parseInt(document.getElementById('score3').value),
+                parseInt(document.getElementById('score4').value),
+                parseInt(document.getElementById('score5').value),
+                parseInt(document.getElementById('score6').value)
+            ];
+            
+            // 验证输入
+            if (!responderId) {
+                showMessage('请输入您的工号', false);
+                return;
+            }
+            
+            for (let score of scores) {
+                if (isNaN(score) || score < 30 || score > 98) {
+                    showMessage('请确保所有分数都在30-98之间', false);
+                    return;
+                }
+            }
+            
+            // 发送到后端API
+            fetch('/api/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    responder_id: responderId,
+                    scores: scores
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage("评议成功", true);
+                    // 清空表单
+                    document.getElementById('survey-form').reset();
+                } else {
+                    showMessage(data.message, false);
+                }
+            })
+            .catch(error => {
+                showMessage('提交失败: ' + error.message, false);
+            });
+        }
+        
+        // 查看结果
+        function viewResults() {
+            fetch('/api/results?initiator=true')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 更新统计数字
+                    document.getElementById('excellent-count').textContent = data.distribution.excellent;
+                    document.getElementById('good-below-count').textContent = data.distribution.good_or_below;
+                    
+                    // 更新详细投票记录
+                    const resultsBody = document.getElementById('results-body');
+                    resultsBody.innerHTML = '';
+                    
+                    // 遍历所有投票记录
+                    data.results.forEach(result => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${result.responder_id}</td>
+                            <td>${result.scores[0]}</td>
+                            <td>${result.scores[1]}</td>
+                            <td>${result.scores[2]}</td>
+                            <td>${result.scores[3]}</td>
+                            <td>${result.scores[4]}</td>
+                            <td>${result.scores[5]}</td>
+                            <td>${new Date(result.timestamp).toLocaleString()}</td>
+                        `;
+                        resultsBody.appendChild(row);
+                    });
+                    
+                    document.getElementById('result-section').classList.remove('hidden');
+                } else {
+                    showMessage(data.message, false);
+                }
+            })
+            .catch(error => {
+                showMessage('获取结果失败: ' + error.message, false);
+            });
+        }
+        
+        // 页面加载完成后尝试显示结果区域（实际应用中需要身份验证）
+        window.onload = function() {
+            // 模拟发起人身份（实际应用中通过URL参数或登录验证）
+            const urlParams = new URLSearchParams(window.location.search);
+            const isInitiator = urlParams.get('initiator') === 'true';
+            
+            if (isInitiator) {
+                viewResults();
+            }
+        };
+    </script>
+</body>
+</html>
