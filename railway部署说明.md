@@ -6,8 +6,8 @@
 
 请确保项目目录中包含以下必要文件：
 - `app_cloud.py`: 应用主文件
-- `requirements.txt`: Python 依赖包列表
 - `survey_final.html`: 问卷页面文件
+- `requirements.txt`: Python 依赖包列表
 - `Procfile`: 应用启动配置文件
 
 ## 部署步骤
