@@ -4,6 +4,9 @@ import os
 from datetime import datetime
 import secrets
 
+# 尝试获取 PORT 环境变量，如果不存在则使用默认值 5000
+port = int(os.environ.get('PORT', 5000))
+
 app = Flask(__name__)
 
 # 数据文件
@@ -131,5 +134,4 @@ def get_results():
 if __name__ == '__main__':
     init_data()
     # 在云部署环境中，通常需要监听 0.0.0.0 并使用环境变量设置端口
-    port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
