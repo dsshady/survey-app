@@ -43,12 +43,13 @@ def save_data(data):
 @app.route('/')
 def index():
     """主页"""
-    return send_from_directory('.', 'survey_final.html')
+    # 明确指定文件路径
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'survey_final.html')
 
 @app.route('/<path:filename>')
 def serve_static(filename):
     """静态文件服务"""
-    return send_from_directory('.', filename)
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), filename)
 
 @app.route('/api/submit', methods=['POST'])
 def submit_scores():
